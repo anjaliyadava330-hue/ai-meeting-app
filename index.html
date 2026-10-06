@@ -217,13 +217,24 @@ Meeting ID:
 <div class="video-grid">
 
 <div class="video-box">
-👤
+
+<video id="myCamera"
+       autoplay
+       playsinline
+       muted
+       style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+</video>
+
 <span id="myVideoName">You</span>
+
 </div>
 
 <div class="video-box">
+
 👤
+
 <span>Participant</span>
+
 </div>
 
 </div>
@@ -405,14 +416,72 @@ const request=button.parentElement;
 request.innerHTML="❌ Rahul's request was rejected.";
 }
 
+let localStream = null;
+let micOn = true;
+let cameraOn = true;
+
+async function startCameraAndMic(){
+
+try{
+
+localStream = await navigator.mediaDevices.getUserMedia({
+video:true,
+audio:true
+});
+
+document.getElementById("myCamera").srcObject = localStream;
+
+alert("Camera and microphone are ON.");
+
+}
+
+catch(error){
+
+alert("Please allow camera and microphone permission.");
+
+}
+
+}
+
 function toggleMic(){
-alert("Microphone toggled.");
+
+if(!localStream){
+startCameraAndMic();
+return;
+}
+
+const audioTrack = localStream.getAudioTracks()[0];
+
+if(audioTrack){
+
+micOn = !micOn;
+audioTrack.enabled = micOn;
+
+alert(micOn ? "Microphone ON" : "Microphone OFF");
+
+}
+
 }
 
 function toggleCamera(){
-alert("Camera toggled.");
+
+if(!localStream){
+startCameraAndMic();
+return;
 }
 
+const videoTrack = localStream.getVideoTracks()[0];
+
+if(videoTrack){
+
+cameraOn = !cameraOn;
+videoTrack.enabled = cameraOn;
+
+alert(cameraOn ? "Camera ON" : "Camera OFF");
+
+}
+
+}
 async function shareScreen(){
 
 try{
