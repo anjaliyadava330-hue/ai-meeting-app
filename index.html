@@ -1,40 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeetAI - Smart Meeting App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetAI - Smart Meeting App</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f4f7fb;color:#1f2937}
+button{border:none;cursor:pointer;border-radius:8px;padding:11px 18px;font-weight:bold}
+.hidden{display:none!important}
 
-    body {
-      background: #f4f7fb;
-      color: #1f2937;
-    }
+#loginPage{
+min-height:100vh;display:flex;justify-content:center;align-items:center;
+background:linear-gradient(135deg,#2563eb,#7c3aed)
+}
+.login-box{
+width:380px;background:white;padding:35px;border-radius:18px;
+box-shadow:0 15px 40px rgba(0,0,0,.2)
+}
+.logo{text-align:center;font-size:30px;font-weight:bold;color:#2563eb;margin-bottom:10px}
+.subtitle{text-align:center;color:#6b7280;margin-bottom:25px}
+input{
+width:100%;padding:13px;margin:8px 0 15px;border:1px solid #d1d5db;
+border-radius:8px;outline:none
+}
+.primary{width:100%;background:#2563eb;color:white}
 
-    button {
-      border: none;
-      cursor: pointer;
-      border-radius: 8px;
-      padding: 11px 18px;
-      font-weight: bold;
-    }
+#app{min-height:100vh}
+header{
+background:white;height:65px;display:flex;align-items:center;
+justify-content:space-between;padding:0 25px;border-bottom:1px solid #ddd
+}
+header h2{color:#2563eb}
+.logout{background:#ef4444;color:white}
+.container{max-width:1200px;margin:30px auto;padding:0 20px}
+.welcome{margin-bottom:25px}
+.cards{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px
+}
+.card{
+background:white;padding:25px;border-radius:15px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);margin-bottom:20px
+}
+.card h3{margin-bottom:10px}
+.blue{background:#2563eb;color:white}
+.green{background:#16a34a;color:white}
+.purple{background:#7c3aed;color:white}
 
-    .hidden {
-      display: none !important;
-    }
+#meetingPage{background:#111827;min-height:100vh;color:white}
+.meeting-header{
+height:65px;background:#1f2937;display:flex;
+justify-content:space-between;align-items:center;padding:0 20px
+}
+.meeting-layout{
+display:grid;grid-template-columns:1fr 300px;
+min-height:calc(100vh - 65px)
+}
+.video-area{padding:20px}
+.video-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px
+}
+.video-box{
+height:220px;background:#374151;border-radius:12px;
+display:flex;justify-content:center;align-items:center;
+font-size:20px;position:relative
+}
+.video-box span{
+position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.6);
+padding:5px 9px;border-radius:5px;font-size:13px
+}
+.sidebar{background:#1f2937;padding:20px;overflow-y:auto}
+.sidebar h3{margin-bottom:15px}
+.participant{
+background:#374151;padding:12px;border-radius:8px;margin-bottom:8px
+}
+.controls{
+position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+background:#1f2937;padding:12px;border-radius:15px;
+display:flex;gap:8px;z-index:10
+}
+.controls button{background:#374151;color:white}
+.controls .end{background:#dc2626}
+.request{
+background:#374151;padding:12px;margin-bottom:10px;border-radius:8px
+}
+.request button{padding:7px 10px;margin-top:7px;margin-right:5px}
+.allow{background:#16a34a;color:white}
+.reject{background:#dc2626;color:white}
+.chat{margin-top:20px}
+#chatMessages{
+background:#111827;height:150px;overflow-y:auto;padding:10px;
+border-radius:8px;margin-bottom:8px
+}
+.message{
+padding:6px;margin-bottom:5px;background:#374151;border-radius:5px
+}
+.ai-box{
+margin-top:20px;background:#312e81;padding:15px;border-radius:10px
+}
+.ai-box input{margin-top:10px;color:black}
+.ai-box button{background:#8b5cf6;color:white}
+#screenPreview{
+width:100%;max-height:350px;margin-top:15px;border-radius:10px;background:black
+}
 
-    /* LOGIN */
-    #loginPage {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-    }
+@media(max-width:800px){
+.meeting-layout{grid-template-columns:1fr}
+.sidebar{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loginPage">
+<div class="login-box">
+<div class="logo">🤖 MeetAI</div>
+<div class="subtitle">Smart Meeting Platform</div>
+
+<input id="nameInput" type="text" placeholder="Enter your name">
+<input id="emailInput" type="email" placeholder="Enter email">
+
+<button class="primary" onclick="login()">
+Login / Sign Up
+</button>
+</div>
+</div>
+
+<div id="app" class="hidden">
+
+<header>
+<h2>🤖 MeetAI</h2>
+<button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+<div class="welcome">
+<h1>Welcome, <span id="userName"></span> 👋</h1>
+<p>Create or join a meeting.</p>
+</div>
+
+<div class="cards">
+
+<div class="card">
+<h3>👑 Create Meeting</h3>
+<p>Create a meeting and become the host.</p>
+<button class="blue" onclick="createMeeting()">Create Meeting</button>
+</div>
+
+<div class="card">
+<h3>🔗 Join Meeting</h3>
+<p>Enter a meeting ID and send a request.</p>
+
+<input id="meetingIdInput" placeholder="Meeting ID">
+
+<button class="green" onclick="joinMeeting()">
+Request to Join
+</button>
+</div>
+
+<div class="card">
+<h3>🤖 AI Assistant</h3>
+<p>Ask questions and get help during your meeting.</p>
+
+<button class="purple" onclick="showAI()">
+Open AI Assistant
+</button>
+</div>
+
+</div>
+
+<div id="hostPanel" class="card hidden">
+<h3>🙋 Join Requests</h3>
+<div id="requests"></div>
+</div>
+
+<div id="homeAI" class="card hidden">
+<h3>🤖 AI Meeting Assistant</h3>
+
+<p id="homeAIAnswer">
+Ask me something about your meeting.
+</p>
+
+<input id="homeAIQuestion" placeholder="Ask something...">
+
+<button class="purple" onclick="askHomeAI()">
+Ask AI
+</button>
+</div>
+
+</div>
+</div>
+
+<div id="meetingPage" class="hidden">
+
+<div class="meeting-header">
+
+<div>
+<strong>🔴 Live Meeting</strong>
+<span id="meetingTitle"></span>
+</div>
+
+<div>
+Meeting ID:
+<strong id="currentMeetingId"></strong>
+</div>
+
+</div>
+
+<div class="meeting-layout">
+
+<div class="video-area">
+
+<div class="video-grid">
+
+<div class="video-box">
+👤
+<span id="myVideoName">You</span>
+</div>
+
+<div class="video-box">
+👤
+<span>Participant</span>
+</div>
+
+</div>
+
+<video id="screenPreview" autoplay muted class="hidden"></video>
+
+<div class="ai-box">
+
+<h3>🤖 AI Meeting Assistant</h3>
+
+<p id="aiAnswer">
+Hello! I can help with your meeting.
+</p>
+
+<input id="aiQuestion" placeholder="Ask AI something...">
+
+<button onclick="askAI()">Ask AI</button>
+
+</div>
+
+<div class="chat">
+
+<h3>💬 Meeting Chat</h3>
+
+<div id="chatMessages">
+
+<div class="message">
+System: Welcome to the meeting.
+</div>
+
+</div>
+
+<input id="chatInput"
+placeholder="Type a message..."
+onkeydown="sendChat(event)">
+
+</div>
+
+</div>
+
+<div class="sidebar">
+
+<h3>👥 Participants</h3>
+
+<div id="participants">
+
+<div class="participant">
+👑 You (Host)
+</div>
+
+<div class="participant">
+👤 Participant
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="controls">
+
+<button onclick="toggleMic()">🎤 Mic</button>
+
+<button onclick="toggleCamera()">🎥 Camera</button>
+
+<button onclick="shareScreen()">🖥️ Share Screen</button>
+
+<button onclick="alert('Chat is available below')">💬 Chat</button>
+
+<button class="end" onclick="endMeeting()">🚪 End</button>
+
+</div>
+
+</div>
+
+<script>
+
+let currentUser="";
+let currentMeeting="";
+let isHost=false;
+
+function login(){
+
+const name=document.getElementById("nameInput").value.trim();
+const email=document.getElementById("emailInput").value.trim();
+
+if(!name||!email){
+alert("Please enter your name and email.");
+return;
+}
+
+currentUser=name;
+
+document.getElementById("userName").innerText=currentUser;
+document.getElementById("myVideoName").innerText=currentUser;
+
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+}
+
+function logout(){
+location.reload();
+}
+
+function createMeeting(){
+
+currentMeeting=Math.floor(100000+Math.random()*900000);
+isHost=true;
+
+document.getElementById("meetingIdInput").value=currentMeeting;
+
+document.getElementById("hostPanel").classList.remove("hidden");
+
+document.getElementById("requests").innerHTML=`
+
+<div class="request">
+
+👤 Rahul wants to join.
+
+<br>
+
+<button class="allow" onclick="allowUser(this)">
+Allow
+</button>
+
+<button class="reject" onclick="rejectUser(this)">
+Reject
+</button>
+
+</div>
+`;
+
+alert("Meeting created!\nMeeting ID: "+currentMeeting);
+
+openMeeting();
+}
+
+function joinMeeting(){
+
+const id=document.getElementById("meetingIdInput").value.trim();
+
+if(!id){
+alert("Enter Meeting ID.");
+return;
+}
+
+alert("Join request sent to the meeting host.");
+}
+
+function openMeeting(){
+
+document.getElementById("app").classList.add("hidden");
+document.getElementById("meetingPage").classList.remove("hidden");
+
+document.getElementById("currentMeetingId").innerText=currentMeeting;
+document.getElementById("meetingTitle").innerText=" - Team Meeting";
+}
+
+function allowUser(button){
+
+const request=button.parentElement;
+
+request.innerHTML="✅ Rahul has been allowed to join.";
+
+const participants=document.getElementById("participants");
+
+participants.innerHTML+=`
+<div class="participant">
+👤 Rahul
+</div>
+`;
+}
+
+function rejectUser(button){
+
+const request=button.parentElement;
+
+request.innerHTML="❌ Rahul's request was rejected.";
+}
+
+function toggleMic(){
+alert("Microphone toggled.");
+}
+
+function toggleCamera(){
+alert("Camera toggled.");
+}
+
+async function shareScreen(){
+
+try{
+
+const stream=await navigator.mediaDevices.getDisplayMedia({
+video:true
+});
+
+const video=document.getElementById("screenPreview");
+
+video.srcObject=stream;
+video.classList.remove("hidden");
+
+alert("Screen sharing started.");
+
+stream.getVideoTracks()[0].addEventListener("ended",()=>{
+video.classList.add("hidden");
+});
+
+}
+
+catch(error){
+
+alert("Screen sharing cancelled.");
+
+}
+}
+
+function sendChat(event){
+
+if(event.key!=="Enter") return;
+
+const input=document.getElementById("chatInput");
+const message=input.value.trim();
+
+if(!message) return;
+
+const chat=document.getElementById("chatMessages");
+
+chat.innerHTML+=`
+<div class="message">
+<strong>${currentUser}:</strong>
+${message}
+</div>
+`;
+
+input.value="";
+chat.scrollTop=chat.scrollHeight;
+}
+
+function askAI(){
+
+const question=document.getElementById("aiQuestion").value.toLowerCase();
+
+let answer="I can help you with meeting summaries, decisions and action items.";
+
+if(question.includes("summary")){
+
+answer="Meeting Summary: The team discussed project progress and next steps.";
+
+}
+
+else if(question.includes("decision")){
+
+answer="Decision: The team should complete the project tasks before the next meeting.";
+
+}
+
+else if(question.includes("next")){
+
+answer="Next Action: Complete pending tasks and review them in the next meeting.";
+
+}
+
+document.getElementById("aiAnswer").innerText=answer;
+}
+
+function showAI(){
+
+document.getElementById("homeAI").classList.remove("hidden");
+
+}
+
+function askHomeAI(){
+
+document.getElementById("homeAIAnswer").innerText=
+"AI: Based on your question, I recommend discussing the important points with the meeting participants.";
+
+}
+
+function endMeeting(){
+
+if(confirm("Are you sure you want to end the meeting?")){
+
+document.getElementById("meetingPage").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
